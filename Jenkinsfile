@@ -1,54 +1,35 @@
 pipeline {
+  agent any
 
-    parameters {
-        booleanParam(name: 'autoApprove', defaultValue: false, description: 'Automatically run apply after generating plan?')
-    } 
-    environment {
-        AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY')
-        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_KEY	')
-    }
-
-   agent  any
-    stages {
-        stage('checkout') {
-            steps {
-                 script{
-                        dir("terraform")
-                        {
-                            git "https://github.com/vrk2299/terr.git"
-                        }
-                    }
-                }
-            }
-
-        stage('Plan') {
-            steps {
-                sh 'pwd;cd terraform/ ; terraform init'
-                sh "pwd;cd terraform/ ; terraform plan -out tfplan"
-                sh 'pwd;cd terraform/ ; terraform show -no-color tfplan > tfplan.txt'
-            }
-        }
-        stage('Approval') {
-           when {
-               not {
-                   equals expected: true, actual: params.autoApprove
-               }
-           }
-
-           steps {
-               script {
-                    def plan = readFile 'terraform/tfplan.txt'
-                    input message: "Do you want to apply the plan?",
-                    parameters: [text(name: 'Plan', description: 'Please review the plan', defaultValue: plan)]
-               }
-           }
-       }
-
-        stage('Apply') {
-            steps {
-                sh "pwd;cd terraform/ ; terraform apply -input=false tfplan"
-            }
-        }
-    }
-
+  environment {
+    AWS_ACCESS_KEY_ID = 'AKIA4ALQMRQXOR2JHVVO'
+    AWS_SECRET_ACCESS_KEY = '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'
+    AWS_DEFAULT_REGION = 'ap-south-1'
   }
+
+  stages {
+    stage('git') {
+        steps {
+            sh 'git init'
+            sh "git pull https://github.com/vrk2299/terr.git"
+        }
+    }
+    stage('Terraform Init') {
+      steps {
+        sh 'terraform init'
+      }
+    }
+
+    stage('Terraform Plan') {
+      steps {
+        sh 'terraform plan -out=tfplan'
+      }
+    }
+
+    stage('Terraform Apply') {
+      steps {
+        sh 'terraform apply tfplan'
+      }
+    }
+  }
+}

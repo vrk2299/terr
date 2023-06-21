@@ -10,7 +10,7 @@ pipeline {
   stages {
     stage('git') {
       steps {
-        git 'https://github.com/vrk2299/terr'
+        sh 'git pull https://github.com/vrk2299/terr'
       }
     }
 

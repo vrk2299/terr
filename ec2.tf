@@ -7,7 +7,7 @@ terraform {
     }
   }
   backend "s3" {
-    bucket = "lakshmireplicabucket "
+    bucket = "lakshmireplicabucket"
     key = "backend/terraform.tfstate"
     region = "ap-south-1"
     
